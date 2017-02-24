@@ -39,13 +39,6 @@ public class TicTacToe
     private State otherPlayer;
     private State[][] board;
     private int emptySpaces;
-    /**
-     * Makes a default Tic-Tac-Toe game with size 3x3
-     */
-    public TicTacToe()
-    {
-        this( 3 );
-    }
     
     /**
      * Makes a Tic-Tac-Toe game with given size
