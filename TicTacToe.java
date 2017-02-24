@@ -38,6 +38,7 @@ public class TicTacToe
     private State currentPlayer;
     private State otherPlayer;
     private State[][] board;
+    private int emptySpaces;
     /**
      * Makes a default Tic-Tac-Toe game with size 3x3
      */
@@ -52,8 +53,6 @@ public class TicTacToe
      */
     public TicTacToe( int size )
     {
-        this.currentPlayer = State.ONE;
-        this.otherPlayer = State.TWO;
         this.size = size;
         this.reset();
     }
@@ -63,6 +62,9 @@ public class TicTacToe
      */
     public void reset()
     {
+        this.currentPlayer = State.ONE;
+        this.otherPlayer = State.TWO;
+        this.emptySpaces = size * size;
         board = new State[size][size];
         for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board[i].length; j++) {
@@ -104,6 +106,7 @@ public class TicTacToe
         {
             board[x][y] = currentPlayer;
             swapPlayers();
+            emptySpaces--;
         }
         return board[x][y];
     }
@@ -121,26 +124,36 @@ public class TicTacToe
      */
     public State checkWin(int x, int y)
     {
-    	int[] xChanges = {0,1,1,1,0,size-1,size-1,size-1};
-    	int[] yChanges = {1,1,0,size-1,size-1,size-1,0,1};
-    	int numDir = xChanges.length;
     	State player = board[x][y];
-    	State tie = State.TIE;
-    	for (int i = 0; i < numDir; i++) {
-        	int x1 = x;
-        	int y1 = y;
-    		int j;
-    		for (j = 0; j < size; j++) {
-				x1 += xChanges[i]; x1 %= size;
-				y1 += yChanges[i]; y1 %= size;
-				if (board[x1][y1] == State.TIE)
-					tie = State.RUN;
-				if (board[x1][y1] != player)
-					break;
-			}
-    		if (j == size)
-    			return player;
-    	}
-    	return tie;
+    	int i;
+		for ( i = 0; i < size; i++ ) // check column
+		{
+			if ( board[x][i] != player )
+				break;
+		}
+		if ( i == size )
+			return player;
+		for ( i = 0; i < size; i++ ) // check row
+		{
+			if ( board[i][y] != player )
+				break;
+		}
+		if ( i == size )
+			return player;
+		for ( i = 0; i < size; i++ ) // check top-left, bottom-right diagonal
+		{
+			if ( board[i][i] != player )
+				break;
+		}
+		if ( i == size )
+			return player;
+		for ( i = 0; i < size; i++ ) // check other diagonal
+		{
+			if ( board[i][size-i-1] != player )
+				break;
+		}
+		if ( i == size )
+			return player;
+    	return emptySpaces <= 0 ? State.TIE : State.RUN;
     }
 }
