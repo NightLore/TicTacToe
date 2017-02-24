@@ -8,9 +8,36 @@
  */
 public class TicTacToe
 {
+	public enum State {
+		ONE("Player 1","X"),TWO("Player 2","O"),TIE,RUN;
+		private String player, visual;
+		
+		private State() {
+			this("","");
+		}
+		
+		private State(String player, String visual) {
+			this.player = player;
+			this.visual = visual;
+		}
+		
+		public String toPlayer() {
+			return player;
+		}
+		
+		public String toVisual() {
+			return visual;
+		}
+		
+		public boolean isPlayer(State s) {
+			return s == ONE || s == TWO;
+		}
+	}
+	
     private int size;
-    private boolean xTurn;
-    private int[][] board;
+    private State currentPlayer;
+    private State otherPlayer;
+    private State[][] board;
     /**
      * Makes a default Tic-Tac-Toe game with size 3x3
      */
@@ -25,7 +52,8 @@ public class TicTacToe
      */
     public TicTacToe( int size )
     {
-        this.xTurn = true;
+        this.currentPlayer = State.ONE;
+        this.otherPlayer = State.TWO;
         this.size = size;
         this.reset();
     }
@@ -35,16 +63,30 @@ public class TicTacToe
      */
     public void reset()
     {
-        board = new int[size][size];
+        board = new State[size][size];
+        for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board[i].length; j++) {
+				board[i][j] = State.TIE;
+			}
+		}
     }
     
     /**
-     * Returns whether it is X player's turn
-     * @return xTurn
+     * Returns the current player as a State
+     * @return current Player
      */
-    public boolean isXTurn()
+    public State getCurrentPlayer()
     {
-        return xTurn;
+        return currentPlayer;
+    }
+    
+    /**
+     * Returns the other player as a State
+     * @return other Player
+     */
+    public State getOtherPlayer()
+    {
+        return otherPlayer;
     }
     
     /**
@@ -56,65 +98,49 @@ public class TicTacToe
      * <br> 0: no player
      * <br> 1: player 1
      */
-    public int change( int x, int y )
+    public State change( int x, int y )
     {
-        if ( board[x][y] == 0 )
+        if ( board[x][y] == State.TIE )
         {
-            board[x][y] = xTurn ? 1 : -1;
-            xTurn = !xTurn;
+            board[x][y] = currentPlayer;
+            swapPlayers();
         }
         return board[x][y];
+    }
+    
+    public void swapPlayers()
+    {
+    	State temp = otherPlayer;
+    	otherPlayer = currentPlayer;
+    	currentPlayer = temp;
     }
     
     /**
      * Checks whether the board has a winning condition
      * @return
      */
-    public int checkWin()
+    public State checkWin(int x, int y)
     {
-        int i, j;
-        for ( int player = -1; player <= 1; player+=2 ) // check player 1 then player 2
-        {
-            for( i = 0; i < size; i++ ) // check the grid
-            {
-                for ( j = 0; j < size; j++ ) // check horizontally
-                {
-                    if ( board[i][j] != player )
-                        break;
-                }
-                if ( j == size )
-                    return player;
-                for ( j = 0; j < size; j++ ) // check vertically
-                {
-                    if ( board[j][i] != player )
-                        break;
-                }
-                if ( j == size )
-                    return player;
-            }
-            for ( i = 0; i < size; i++ ) // check top-left, bottom-right diagonal
-            {
-                if ( board[i][i] != player )
-                    break;
-            }
-            if ( i == size )
-                return player;
-            for ( i = 0; i < size; i++ ) // check other diagonal
-            {
-                if ( board[i][size-i-1] != player )
-                    break;
-            }
-            if ( i == size )
-                return player;
-        }
-        for ( int[] k : board )
-        {
-            for ( int l : k )
-            {
-                if ( l == 0 )
-                    return 0;
-            }
-        }
-        return -2;
+    	int[] xChanges = {0,1,1,1,0,size-1,size-1,size-1};
+    	int[] yChanges = {1,1,0,size-1,size-1,size-1,0,1};
+    	int numDir = xChanges.length;
+    	State player = board[x][y];
+    	State tie = State.TIE;
+    	for (int i = 0; i < numDir; i++) {
+        	int x1 = x;
+        	int y1 = y;
+    		int j;
+    		for (j = 0; j < size; j++) {
+				x1 += xChanges[i]; x1 %= size;
+				y1 += yChanges[i]; y1 %= size;
+				if (board[x1][y1] == State.TIE)
+					tie = State.RUN;
+				if (board[x1][y1] != player)
+					break;
+			}
+    		if (j == size)
+    			return player;
+    	}
+    	return tie;
     }
 }

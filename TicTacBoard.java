@@ -64,7 +64,7 @@ public class TicTacBoard extends JFrame
                 gamePanel.add( b );
             }
         }
-        text = new JTextField( "Let's Play a game of Tic-Tac-Toe" );
+        text = new JTextField( "Let's Play a game of Tic-Tac-Toe!" );
         text.setEditable( false );
         text.setPreferredSize( new Dimension( WINDOW_SIZE - 100, 50 ) );
         
@@ -111,50 +111,26 @@ public class TicTacBoard extends JFrame
         {
             if ( !inGame )
                 return;
-            ((JButton)e.getSource()).setText( toVisual( game.change( x, y ) ) );
-            int win = game.checkWin();
+            ((JButton)e.getSource()).setText( game.change( x, y ).toVisual() );
             String s = "";
+            TicTacToe.State win = game.checkWin(x,y); 
             switch( win )
             {
-                case 1:
-                case -1:
-                    s = "Winner is " + toPlayer( win );
+                case ONE:
+                case TWO:
+                    s = "Winner is " + win.toPlayer();
                     inGame = false;
                     break;
-                case 0:
-                    s = toPlayer( !game.isXTurn() ) + " moved, " + toPlayer( game.isXTurn() ) + "'s turn";
+                case RUN:
+                    s = game.getOtherPlayer().toPlayer() + " moved, " + game.getCurrentPlayer().toPlayer() + "'s turn";
                     break;
+                case TIE:
+                	s = "Ended in a tie";
+                	inGame = false;
                     
             }
             text.setText( s );
         }
-    }
-    
-    private static String toPlayer( int i )
-    {
-        if ( i == 0 )
-            return "";
-        return toPlayer( i == 1 );
-    }
-    
-    private static String toPlayer( boolean b )
-    {
-        return "Player " + ( b ? "1 (X)" : "2 (O)" );
-    }
-
-    private static String toVisual( int i )
-    {
-        String s = "";
-        switch ( i )
-        {
-            case -1:
-                s = "O";
-                break;
-            case 1:
-                s = "X";
-                break;
-        }
-        return s;
     }
 
     public static void main( String[] args ) {
